@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Photo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #D3E0CD;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #container {
+            text-align: center;
+            background-color: #B8D0B1;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333333;
+        }
+        input[type=file] {
+            margin: 20px 0;
+        }
+        #preview {
+            width: 300px;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Test</h1>
+        <!-- Input fields for ingredients to exclude and include -->
+        <input type="text" id="excludeInput" placeholder="Ingredients to exclude (comma-separated)">
+        <input type="text" id="includeInput" placeholder="Ingredients to include (comma-separated)">
+        <!-- Your file input and preview image -->
+        <input type="file" accept="image/*" capture onchange="previewImage(event)">
+        <br>
+        <img id="preview" src="#" alt="Preview">
+        <br>
+        <!-- Button to initiate the search -->
+        <button onclick="searchRecipes()">Search</button>
+    </div>
+
+    <script>
+
+	const appId = 'fe8b424a';
+	const appKey = '9778009a571551e45d555efde563a70f';
+
+        function previewImage(event) {
+         	var reader = new FileReader();
+		reader.onload = function() {
+                var output = document.getElementById('preview');
+                output.src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function goToResultsPage() {
+	window.location.href = "results.html";
+        }
+
+	function searchRecipes() {
+		//window.location.href = "results.html";
+		console.log("searchRecipes reached");
+		/*
+            var query = document.getElementById('searchInput').value.trim();
+            var excludeIngredients = document.getElementById('excludeInput').value.trim();
+            var includeIngredients = document.getElementById('includeInput').value.trim();
+
+            // Construct the URL with query parameters
+            var url = `results.html?query=${encodeURIComponent(query)}`;
+            if (excludeIngredients !== '') {
+                url += `&exclude=${encodeURIComponent(excludeIngredients)}`;
+            }
+            if (includeIngredients !== '') {
+                url += `&include=${encodeURIComponent(includeIngredients)}`;
+            }
+
+		
+		localStorage.setItem("urlValue", url);
+		*/
+		var include = [];
+		var exclude = [];
+		
+		// Get the values from input fields
+        var exclText = document.getElementById('excludeInput').value.trim();
+        var inclText = document.getElementById('includeInput').value.trim();
+
+        // Split the input values into arrays
+        exclude = exclText.split(',').map(item => item.trim());
+        include = inclText.split(',').map(item => item.trim());
+
+        // Now you have 'exclude' and 'include' arrays populated with ingredients
+        console.log('Exclude:', exclude);
+        console.log('Include:', include);
+ 
+		var inclStr = JSON.stringify(include);
+		var exclStr = JSON.stringify(exclude);
+		
+		localStorage.setItem("qKey", inclStr);
+		localStorage.setItem("exclKey", exclStr);
+		
+		window.location.href = "results.html";
+		//window.location.href = url;
+	}
+    </script>
+</body>
+</html>

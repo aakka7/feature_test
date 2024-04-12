@@ -21,47 +21,113 @@
         h1 {
             color: #333333;
         }
-        table {
+        .recipe-block {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-column-gap: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .recipe-image {
+            width: 150px;
+            height: 150px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .recipe-image img {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            height: 100%;
+            object-fit: cover;
         }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #dddddd;
-        }
-        th {
-            background-color: #A1BA9C;
+        .recipe-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
     <div id="panel">
-        <h1>Search Results</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Recipe</th>
-                    <th>Ingredients</th>
-                    <th>Additional Ingredients</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Placeholder rows for search results -->
-                <tr>
-                    <td>words</td>
-                    <td>words</td>
-                    <td>words</td>
-                </tr>
-                <tr>
-                    <td>words</td>
-                    <td>words</td>
-                    <td>words</td>
-                </tr>
-                <!-- Add more rows as needed -->
-            </tbody>
-        </table>
+        <h1 id="resultsHeader">Results for 'x'</h1>
+        <div id="results"></div>
+        <!-- Pagination buttons -->
+        <div id="pagination">
+            <button onclick="prevPage()">Previous</button>
+            <button onclick="nextPage()">Next</button>
+        </div>
     </div>
+
+    <script> 
+	window.onload
+        window.onload = function() {
+	    console.log('Started...');
+		console.log(localStorage.getItem("exclKey"));
+            //var urlParams = new URLSearchParams(window.location.search);
+			var urlParams = new URLSearchParams(localStorage.getItem("urlValue"));
+	    var excludeIngredients = urlParams.get('exclude') || '';
+	    var includeIngredients = urlParams.get('include') || "";
+            var query = urlParams.get('query');
+	    console.log('if reached');
+           // if (query) {
+                document.getElementById('resultsHeader').innerText = "Results for " + query + ".";
+		console.log('reached');
+                //fetchRecipes(query, excludeIngredients, includeIngredients);
+				fetchRecipes(query, localStorage.getItem("exclKey"), includeIngredients);
+			//}
+        }
+
+        function fetchRecipes(query, excludeIngredients, includeIngredients) {
+	    console.log('fetchRecipes() started...');
+            var appId = "fe8b424a";
+            var appKey = "9778009a571551e45d555efde563a70f";
+	    var excludeParams = excludeIngredients ? `&excluded=${encodeURIComponent(excludeIngredients)}` : '';
+    	    var includeParams = includeIngredients ? `&allowedIngredient=${encodeURIComponent(includeIngredients)}` : '';
+	    var queryParams = `&app_id=${appId}&app_key=${appKey}`;
+		query = localStorage.getItem("qKey");
+		
+	    //var endpoint = `https://api.edamam.com/search?q=${encodeURIComponent(query)}${excludeParams}${includeParams}${queryParams}`;
+		var endpoint = `https://api.edamam.com/search?q=${encodeURIComponent(query)}${excludeParams}${queryParams}`;
+
+	   console.log('Excluded: ', excludeParams);
+	   console.log('Include: ', includeParams);
+	   console.log('Query: ', queryParams);
+	   console.log('URL: ', endpoint);
+
+            fetch(endpoint, {
+                method: 'GET',
+                headers: {
+                    'Accept-Encoding': 'gzip, deflate'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayRecipes(data.hits);
+		console.log('Displayed.');
+            })
+            .catch(error => console.log('Error:', error));
+        }
+
+        function displayRecipes(hits) {
+            var recipeContainer = document.getElementById('results');
+            recipeContainer.innerHTML = "";
+
+            hits.forEach(hit => {
+                var recipe = hit.recipe;
+                var resultElement = document.createElement('div');
+                resultElement.className = "recipe-block";
+                resultElement.innerHTML = `
+                    <div class="recipe-image">
+                        <img src="${recipe.image}" alt="${recipe.label}">
+                    </div>
+                    <div class="recipe-details">
+                        <h2>${recipe.label}</h2>
+                        <!-- Add more details here as needed -->
+                    </div>
+                `;
+                recipeContainer.appendChild(resultElement);
+            });
+        }
+    </script>
 </body>
 </html>
